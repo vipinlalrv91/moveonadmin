@@ -1,0 +1,4 @@
+node_modules
+public/resources/
+public/logs/*
+!public/logs/.gitkeep

@@ -1,0 +1,341 @@
+<%- include("../common/main-nav-cms",{page:"cms-portfolio"}) %>
+<script src="/assets/vendors/js/jquery.js"></script>
+<script src="/assets/js/toaster.js"></script>
+
+  
+
+
+  <link href="../assets/css/custom.css" rel="stylesheet">
+        <!-- partial -->
+        
+        <div class="main-panel">
+          <div class="content-wrapper">
+            <div class="page-header">
+              <h3 class="page-title">Showcase Page Management</h3>
+              <!-- <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="#">Home</a></li>
+                  <li class="breadcrumb-item active" aria-current="page"><a href="#">Frontend</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Gallery page settings</li>
+                </ol>
+              </nav> -->
+            </div>
+            <div class="row">
+              <div class="col-lg-12 grid-margin">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                      <p class="card-description">Add New Portfolio</p>
+                      <a href="/frontend-management/portfolios/view" type="button" class="btn btn-outline-info btn-icon-text btn-sm"> View<i class=" mdi mdi-eye  btn-icon-append"></i>
+                      </a>
+                    </div>
+                    <form  class="forms-sample" id="upload-images" enctype="multipart/form-data">
+                      <div class="form-group">
+                        <label for="exampleInputName1">Portfolio title</label>
+                        <input type="text" class="form-control" id="portfolio-title" name="portfolio-title" placeholder="Title">
+                      </div>
+                      <div class="form-group">
+                        <label for="exampleInputName1">Portfolio short title</label>
+                        <input type="text" class="form-control" id="portfolio-short-title" name="portfolio-short-title" placeholder="Short title">
+                      </div>
+                      <div class="form-group">
+                        <label>Title  image</label>
+                        <input type="file" name="img" id="img" class="file-upload-default">
+                        <div class="input-group col-xs-12">
+                          <input type="text" class="form-control" disabled placeholder="Upload Image">
+                          <span class="input-group-append">
+                            <button class="file-upload-browse btn btn-primary" type="button">Choose</button>
+                          </span>
+                        </div>
+                      </div>
+                      
+
+                      <div class="form-group">
+                        <div class="ashade-col col-8">
+                          <div class="upload__box">
+                          <div class="upload__btn-box">
+                            <label class="upload__btn">
+                            Upload Photo *
+                            <input type="file" multiple id="multiImages" name="multiImages"  accept="image/jpg,image/png,image/jpeg,image/gif"  data-max_length="20" class="form-control upload__inputfile w-100">
+                            </label>
+                          </div>
+                          <div class="upload__img-wrap"></div>
+                          </div>
+                      </div>
+                      <button id="submit-btn" type="button" class="btn btn-primary me-2">Submit</button>
+                      <div id="submit-btn-loader" type="button" class="btn btn-primary me-2">Loading...</div>
+                      <!-- <button type="reset" class="btn btn-light">Cancel</button> -->
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+       
+          <footer class="footer">
+            <div class="footer-inner-wraper">
+              <div class="d-sm-flex justify-content-center justify-content-sm-between py-2">
+              </div>
+            </div>
+          </footer>
+          <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+    <!-- plugins:js -->
+    <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="../../assets/js/off-canvas.js"></script>
+    <script src="../../assets/js/hoverable-collapse.js"></script>
+    <script src="../../assets/js/file-upload.js"></script>
+    <script src="../../assets/js/axios.js"></script>
+    <script>
+      $("#submit-btn-loader").hide();
+
+  jQuery(document).ready(function () {
+    ImgUpload();
+  });
+  var imgArr = [];
+  function ImgUpload() {
+    var imgWrap = "";
+    var imgArray = [];
+  
+    $('.upload__inputfile').each(function () {
+      $(this).on('change', function (e) {
+        imgWrap = $(this).closest('.upload__box').find('.upload__img-wrap');
+        var maxLength = $(this).attr('data-max_length');
+  
+        var files = e.target.files;
+        var fileSize = files[0].size / 1024 / 1024;
+
+          if(fileSize < 5)
+        {
+
+        let profileImages = document.querySelector('#multiImages').files;
+         if (profileImages.length == 1) {
+              imgArr.push(profileImages[0]);
+            }
+            else {
+              var len = profileImages.length;
+              for (i = 0; i < len; i++) {
+                imgArr.push(profileImages[i])
+              }
+            }
+
+          
+        var filesArr = Array.prototype.slice.call(files);
+        var iterator = 0;
+        filesArr.forEach(function (f, index) {
+  
+          if (!f.type.match('image.*')) {
+            return;
+          }
+  
+          if (imgArray.length > maxLength) {
+            return false
+          } else {
+            var len = 0;
+            for (var i = 0; i < imgArray.length; i++) {
+              if (imgArray[i] !== undefined) {
+                len++;
+              }
+            }
+            if (len > maxLength) {
+              return false;
+            } else {
+              imgArray.push(f);
+  
+              var reader = new FileReader();
+              reader.onload = function (e) {
+                var html = "<div class='upload__img-box'><div style='background-image: url(" + e.target.result + ")' data-number='" + $(".upload__img-close").length + "' data-file='" + f.name + "' class='img-bg'><div class='upload__img-close'></div></div></div>";
+                imgWrap.append(html);
+                iterator++;
+              }
+              reader.readAsDataURL(f);
+            }
+          }
+        });
+         } else
+      {
+        Swal.fire('',"please upload image under 5mb",'warning',"warning");
+      }
+      });
+    });
+  
+    $('body').on('click', ".upload__img-close", function (e) {
+      var file = $(this).parent().data("file");
+
+        for (var i = 0; i < imgArr.length; i++) {
+          if (imgArr[i].name === file) {
+            imgArr.splice(i, 1);
+            break;
+          }
+        }
+      
+      for (var i = 0; i < imgArray.length; i++) {
+        if (imgArray[i].name === file) {
+          imgArray.splice(i, 1);
+          break;
+        }
+      }
+      $(this).parent().parent().remove();
+    });
+  }
+
+
+      $(document).ready(function () {
+        
+        $("#submit-btn").click(async function (e) { 
+          e.preventDefault();
+          var fd = new FormData();
+          var files = $('#img')[0].files;
+           if(files.length > 0 ){
+            $("#submit-btn-loader").show();
+            $("#submit-btn").hide();
+            fd.append('shortTitle',$('#portfolio-title').val());
+            fd.append('title',$('#portfolio-short-title').val());
+            fd.append('thumbImage',files[0]);
+             let authorizationToken = "Bearer "+ window.localStorage.getItem("token");
+             $.ajax({
+                 method:"post",
+                 beforeSend: function(request) {
+                request.setRequestHeader("Authorization", authorizationToken);
+                },
+                 url: "/api/portfolios", 
+                 data:fd,
+                 processData: false,
+                 contentType: false,
+                 success: function(data, textStatus, jqXHR)
+                 {
+                   if(jqXHR.status == 200)
+                   {
+                    // $('#img').val("");
+                    // $('.file-upload-info').val("");
+                      $('#portfolio-title').val("");
+                      $('#portfolio-short-title').val("");
+                      $('#img').val("");
+                      $('.file-upload-info').val("");
+                       //successToast(data.message);
+                       // getData();
+                       let id = data.data.portfolioId;
+                       
+                       try{
+                            
+                        var formData = new FormData();
+                        //let profileImages = document.querySelector('#multiImages').files;
+                        let profileImages = imgArr;
+                        
+                        console.log(profileImages);
+                        if(profileImages.length > 0){
+                          for (let i = 0; i < profileImages.length; i++) {
+                            formData.append('images',profileImages[i]);
+                          }
+                          
+
+                          let token = "Bearer "+ window.localStorage.getItem("token");
+
+                          axios({
+                                  method: 'post',
+                                  url: `/api/portfolios/${id}/add-images`,
+                                  data: formData,
+                                  headers:{
+                                    "Authorization":token,
+                                    "content-type": "multipart/form-data"}
+                                  }).then((result)=>{
+                                      
+                                      $("#submit-btn-loader").hide();
+                                      $("#submit-btn").show();
+                                      
+                                      Swal.fire('',"Uploaded successfully","success");
+                                      setTimeout(()=>{
+                                        window.location.reload();
+                                      },3000)
+                                      
+
+                                  }).catch(error=>{
+                                    $("#submit-btn-loader").hide();
+                                    $("#submit-btn").show();
+                                    
+                                    Swal.fire('',error.response.data.message,"error");
+                                  })
+                            
+                          
+                        }
+                       }catch(error){
+                          $("#submit-btn-loader").hide();
+                          $("#submit-btn").show();
+                          Swal.fire('',error,"error");
+                       }
+                      
+                    
+                      // window.location.reload();
+                   }
+                 },
+                 error: function(error)
+                 {
+                  $("#submit-btn-loader").hide();
+                  $("#submit-btn").show();
+                    
+                    Swal.fire('',error.responseJSON.message,"error");
+                 }
+               });
+
+              } else {
+                Swal.fire('',"choose a image ","error");
+                
+              }
+
+           });
+      });
+
+      $(document).ready(async function () {
+        $("#submit-btn-multi").click(async function (e) { 
+          e.preventDefault();
+            
+            try{
+              var formData = new FormData();
+              //let profileImages = document.querySelector('#multiImages').files;
+               let profileImages = imgArr;
+              
+              // console.log(profileImages);
+              if(profileImages.length > 0){
+                for (let i = 0; i < profileImages.length; i++) {
+                  formData.append('images',profileImages[i]);
+                }
+                
+
+                let token = "Bearer "+ window.localStorage.getItem("token");
+                var p_id = $('#portfolio-id').val();
+
+                let result = await axios({
+                                     method: 'post',
+                                      url: `/api/portfolios/${p_id}/add-images`,
+                                      data: formData,
+                                      headers:{
+                                          "Authorization":token,
+                                          "content-type": "multipart/form-data"}
+                                    });
+                  
+               
+                Swal.fire('',result.data.message,"success");
+              }
+            }catch(error){
+              Swal.fire('',error,"error");
+
+            }
+           
+            
+            
+          
+          });
+      });
+ </script>
+    <!-- endinject -->
+  </body>
+</html>

@@ -1,0 +1,12 @@
+clear all the tables
+********************
+// TRUNCATE TABLE concept_images; 
+// TRUNCATE TABLE contacts; 
+// TRUNCATE TABLE enquiries; 
+// TRUNCATE TABLE enquiry_images; 
+// TRUNCATE TABLE genders; 
+// TRUNCATE TABLE images; 
+// TRUNCATE TABLE portfolios; 
+// TRUNCATE TABLE portfolio_images; 
+// TRUNCATE TABLE services;
+// TRUNCATE TABLE tokens;

@@ -1,0 +1,510 @@
+<%- include("../common/main-nav",{page:"cms-portfolio"}) %>
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+  <div class="main-panel">
+    <div class="content-wrapper">
+      <div class="page-header">
+        <h3 class="page-title">Portfolio</h3>
+        <!-- <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><a href="#">Frontend</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Home</li>
+          </ol>
+        </nav> -->
+      </div>
+      <div class="row">
+        <div class="col-lg-12 grid-margin">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <a href="/frontend-management/portfolios" type="button" class="btn btn-outline-info btn-icon-text">Go
+                  back<i class=" mdi mdi-arrow-left  btn-icon-append"></i>
+                </a>
+              </div>
+              <div class="table-responsive mt-3">
+                <table class="table table-bordered" id="myTable" style="width: 100%">
+                  <thead>
+                    <tr>
+                      <th> # </th>
+                      <th>Title</th>
+                      <th> Short title </th>
+                      <th> Title image </th>
+                      <th> Portfolio images </th>
+                      <!-- <th> Edit </th> -->
+                      <th> Delete </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                  </tbody>
+                </table>
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- content-wrapper ends -->
+    <!-- partial:../../partials/_footer.html -->
+    <footer class="footer">
+      <div class="footer-inner-wraper">
+        <div class="d-sm-flex justify-content-center justify-content-sm-between py-2">
+          </div>
+      </div>
+    </footer>
+    
+    
+    
+    <!-- partial -->
+  </div>
+  <!-- main-panel ends -->
+  </div>
+  <!-- page-body-wrapper ends -->
+  </div>
+  <!-- container-scroller -->
+  <!-- plugins:js -->
+  <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
+  <!-- endinject -->
+  <!-- Plugin js for this page -->
+  <!-- End plugin js for this page -->
+  <!-- inject:js -->
+  <script src="../../assets/js/off-canvas.js"></script>
+  <script src="../../assets/js/hoverable-collapse.js"></script>
+
+  <script src="../../assets/js/file-upload.js"></script>
+  <script src="../../assets/js/data-table.js"></script>
+  <script src="../../assets/js/axios.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      var base_url = "https://movonnewbucket.s3.amazonaws.com/images/";
+      var imageUrl = "https://movonnewbucket.s3.amazonaws.com/images/";
+      var base_url = "/uploads/";
+      var imageUrl = "/uploads/";
+      let authorizationToken = "Bearer " + window.localStorage.getItem("token");
+      $.ajax({
+        method: "get",
+        beforeSend: function (request) {
+          request.setRequestHeader("Authorization", authorizationToken);
+        },
+        url: "/api/portfolios",
+        success: function (data, textStatus, jqXHR) {
+          var portfolios = data.data.portfolios;
+          var newPortfolios = [];
+          var i = 1;
+          $.each(portfolios, function (key, value) {
+            value.no = i;
+            newPortfolios.push(value);
+            i++;
+          });
+          var primg = [];
+          $.each(newPortfolios, function (key, value) {
+
+            $.ajax({
+              method: "get",
+              beforeSend: function (request) {
+                request.setRequestHeader("Authorization", authorizationToken);
+              },
+              url: "/api/portfolios/" + value.hex_id + "/images",
+              success: function (data, textStatus, jqXHR) {
+                primg.push(data.data.images);
+
+              }
+            });
+          });
+
+
+
+          let images = [], htmlString = "";
+          $('#myTable').DataTable({
+            data: newPortfolios,
+            columns: [
+              { data: 'no' },
+              { data: 'title',render: function (data, type, row, meta){
+                return `<a style="cursor: pointer;" onclick="$('#modalTitle${row.portfolio_id}').modal('show')">
+                           ${data}
+                        </a>
+                        <div class="modal fade" id="modalTitle${row.portfolio_id}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="exampleModalLongTitle">Update Title</h5>
+                                  <button type="button"  class="btn"
+                                          data-dismiss="modal" 
+                                          onclick="$('#modalTitle${row.portfolio_id}').modal('hide')">
+                                    <span aria-hidden="true" >X</span>
+                                  </button>
+                                </div>
+                                <div class="modal-body">
+                                  <form class="d-flex justify-content-around">
+                                    <input type="text" id="tittleUpdateInput${row.portfolio_id}" value="${data}" class="form-control">
+                                    <input class="btn btn-primary" type="button" value="Update" onclick="updateTitle('${row.portfolio_id}')">
+                                  </form>
+                                    
+                                </div>
+                              </div>
+                            </div>
+                          </div>`;
+              }},
+              { data: 'short_title',render: function (data, type, row, meta){
+                return `<a style="cursor: pointer;" onclick="$('#modalShortTitle${row.portfolio_id}').modal('show')">
+                           ${data}
+                        </a>
+                        <div class="modal fade" id="modalShortTitle${row.portfolio_id}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="exampleModalLongTitle">Update Short Title</h5>
+                                  <button type="button"  class="btn"
+                                          data-dismiss="modal" 
+                                          onclick="$('#modalShortTitle${row.portfolio_id}').modal('hide')">
+                                    <span aria-hidden="true" >X</span>
+                                  </button>
+                                </div>
+                                <div class="modal-body">
+                                  <form class="d-flex justify-content-around">
+                                    <input type="text" id="shortTitleUpdateInput${row.portfolio_id}" value="${data}" class="form-control">
+                                    <input class="btn btn-primary" type="button" value="Update" onclick="updateShortTitle('${row.portfolio_id}')">
+                                  </form>
+                                    
+                                </div>
+                              </div>
+                            </div>
+                          </div>`;
+              }},
+              {
+                data: 'thumbImg', render: function (data, type, row, meta) {
+                  return `<a style="cursor: pointer;" onclick="$('#${row.hex_id}').modal('show')">
+                              <img src="${base_url + data}" height="50" width="50" />
+                            </a>
+                            <div class="modal fade" id="${row.hex_id}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                              <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLongTitle">Title Image</h5>
+                                    <button type="button"  class="btn"
+                                            data-dismiss="modal" 
+                                            onclick="$('#${row.hex_id}').modal('hide')">
+                                      <span aria-hidden="true" >X</span>
+                                    </button>
+                                  </div>
+                                  <div class="modal-body">
+                                    <img style="border-radius:0%;width:100%;height:100%;"  src="${base_url + data}" class="img-fluid" alt="Responsive image">
+                                    <form class="mt-3 d-flex justify-content-around">
+                                      <input type="file" class="form-control" id="thumbFile${row.hex_id}" name="homepage" class="btn" accept="image/x-png,image/gif,image/jpeg">
+                                      <input type="button"  class="btn btn-success" value="Update Image" onclick="updateThumbnailImage('${row.portfolio_id}','${row.hex_id}')">
+                                    </form>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>`;
+    }
+              },
+              {
+                data: 'portfolio_id', render: function (data, type, row, meta) {
+                  images = row.images, htmlString = "";
+
+                  htmlString = `<span class="btn btn-primary btn-sm" style="margin-right:10px;" onclick="$('#addImageModel${row.portfolio_id}').modal('show')"><i class="mdi mdi-plus"></i></span>
+                                <div class="modal fade" id="addImageModel${row.portfolio_id}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                          <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h5 class="modal-title" id="exampleModalLongTitle">Add new image to this album</h5>
+                                              <button type="button"  class="btn"
+                                                      data-dismiss="modal" 
+                                                      onclick="$('#addImageModel${row.portfolio_id}').modal('hide')">
+                                                <span aria-hidden="true" >X</span>
+                                              </button>
+                                            </div>
+                                            <div class="modal-body">
+                                              <form class="mt-3 d-flex justify-content-around">
+                                                <input type="file" id="addImageAlbumFile${row.portfolio_id}" name="homepage" class="form-control" accept="image/x-png,image/gif,image/jpeg">
+                                                <input type="button"  class="btn btn-primary" value="Add Image" onclick="addImageToAlbum('${row.portfolio_id}')">
+                                              </form>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>`;
+                  images.forEach(data => {
+                    
+                    
+                         htmlString +=  `<a style="cursor: pointer;" onclick="$('#${(data.image).split(".")[0]}').modal('show')" >
+                                          <img src="${imageUrl + (data.image)}" height="50" width="50" />
+                                          </a>
+                                          <div class="modal fade" id="${(data.image).split(".")[0]}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                              <div class="modal-content">
+                                                <div class="modal-header">
+                                                  <h5 class="modal-title" id="exampleModalLongTitle">Portfolio Image</h5>
+                                                  <button type="button"  class="btn"
+                                                          data-dismiss="modal" 
+                                                          onclick="$('#${(data.image).split(".")[0]}').modal('hide')">
+                                                    <span aria-hidden="true" >X</span>
+                                                  </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                  <button class='btn btn-danger mb-3' onclick="deletePortfolioImage('${row.portfolio_id}','${data.image}')">Delete This image</button>
+                                                  <br>
+                                                  <img style="border-radius:0%;width:100%;height:100%;"  src="${imageUrl + (data.image)}" class="img-fluid" alt="Responsive image">
+                                                  
+                                                  <form class="mt-3 d-flex justify-content-around">
+                                                    <input type="file" id="portfolioFilUpload${(data.image).split(".")[0]}" name="homepage" class="form-control" accept="image/x-png,image/gif,image/jpeg">
+                                                    <input type="button"  class="btn btn-primary" value="Update Image" onclick="updateAlbumImage('${row.portfolio_id}','${data.image}')">
+                                                  </form>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>`
+                  });
+
+                  return htmlString;
+                }
+              },
+
+              {
+                data: 'portfolio_id', render: function (data, type, row, meta) {
+                  return '<button value="' + data + '" class="del btn btn-danger"><i style="cursor:pointer;" class="fa fa-trash" aria-hidden="true"></i></button>';
+                }
+              }
+            ]
+          });
+          //$('#myTable').DataTable();
+        },
+        error: function (error) {
+          console.log(error.responseJSON);
+        }
+      });
+
+      //  });
+    });
+
+    $("body").on("click", ".del", function (e) {
+      var row = $(this);
+      var table = $('#myTable').DataTable();
+      var tablename = row.closest('table').DataTable();
+      let authorizationToken = "Bearer " + window.localStorage.getItem("token");
+      var portfolio_id = jQuery(this).val();
+      $.ajax({
+        method: "delete",
+        beforeSend: function (request) {
+          request.setRequestHeader("Authorization", authorizationToken);
+        },
+        url: "/api/portfolios/" + portfolio_id,
+        success: function (data, textStatus, jqXHR) {
+          tablename.row(row.parents('tr')).remove().draw();
+          alert(data.message);
+        },
+        error: function (error) {
+          console.log(error.responseJSON);
+        }
+      });
+    });
+
+    function fireModelForThumbnail(params) {
+      Swal.fire({
+        title: "Do you want to edit title image?",
+        html: "Testno  sporocilo za objekt: <b>test</b>",
+        cancel: true,
+      });
+    }
+
+    function updateThumbnailImage(portfolioId,hexId){
+      
+       let image = $(`#thumbFile${hexId}`).val();
+       if(!image){
+          return showAlert("warning","choose an image to continue!!")
+       }
+         
+       var formData = new FormData();
+       var files = $(`#thumbFile${hexId}`)[0].files;
+
+       
+       formData.append("thumbImage",files[0]);
+       
+       let authorizationToken = "Bearer "+ window.localStorage.getItem("token");
+        
+       axios({
+              method: 'put',
+              url: `/api/portfolios/${portfolioId}`,
+              data: formData,
+              headers:{
+                "Authorization":token,
+                "content-type": "multipart/form-data"}
+              }).then((result)=>{
+                 
+                 showAlert("success",result.data.message);
+                 setTimeout(()=>{
+                   window.location.reload();
+                 },1000)
+
+              }).catch(error=>{
+                 showAlert("error",error.response.data.message)
+              })
+
+
+      
+    }
+    
+    function updateAlbumImage(portfolioId,imageId){
+        console.log({portfolioId,imageId});
+       
+        let image = $(`#portfolioFilUpload${imageId.split(".")[0]}`).val();
+        if(!image){
+            return showAlert("warning","choose an image to continue!!")
+        }
+
+        var formData = new FormData();
+        var files = $(`#portfolioFilUpload${imageId.split(".")[0]}`)[0].files;
+
+        formData.append("portfolioImage",files[0]);
+        formData.append("oldPortfolioImage",imageId);
+        let authorizationToken = "Bearer "+ window.localStorage.getItem("token");
+
+        axios({
+              method: 'put',
+              url: `/api/portfolios/${portfolioId}`,
+              data: formData,
+              headers:{
+                "Authorization":token,
+                "content-type": "multipart/form-data"}
+              }).then((result)=>{
+                 
+                 showAlert("success",result.data.message);
+                 setTimeout(()=>{
+                   window.location.reload();
+                 },1000)
+
+              }).catch(error=>{
+                 showAlert("error",error.response.data.message)
+              });
+      
+    }
+    
+    function updateTitle(portfolioId){
+       let title = $(`#tittleUpdateInput${portfolioId}`).val();
+       if(!title){
+            return showAlert("warning","title required");
+        }
+
+        let authorizationToken = "Bearer "+ window.localStorage.getItem("token");
+        
+        axios({
+                method: 'put',
+                url: `/api/portfolios/${portfolioId}`,
+                data:{"title":title.trim()},
+                headers:{
+                  "Authorization":token,
+                  "content-type": "multipart/form-data"}
+                }).then((result)=>{
+                  
+                  showAlert("success",result.data.message);
+                  setTimeout(()=>{
+                    window.location.reload();
+                  },1000)
+
+                }).catch(error=>{
+                  showAlert("error",error.response.data.message)
+                })
+    }
+
+
+    function updateShortTitle(portfolioId){
+      
+       let title = $(`#shortTitleUpdateInput${portfolioId}`).val();
+       if(!title){
+            return showAlert("warning","short title required");
+        }
+
+        let authorizationToken = "Bearer "+ window.localStorage.getItem("token");
+        
+        axios({
+                method: 'put',
+                url: `/api/portfolios/${portfolioId}`,
+                data:{"shortTitle":title.trim()},
+                headers:{
+                  "Authorization":token,
+                  "content-type": "multipart/form-data"}
+                }).then((result)=>{
+                  
+                  showAlert("success",result.data.message);
+                  setTimeout(()=>{
+                    window.location.reload();
+                  },1000)
+
+                }).catch(error=>{
+                  showAlert("error",error.response.data.message)
+                })
+    }
+
+
+    function addImageToAlbum(portfolioId) {
+      let image = $(`#addImageAlbumFile${portfolioId}`).val();
+      if(!image){
+          return showAlert("warning","choose an image to continue!!")
+      }
+
+      var formData = new FormData();
+       var files = $(`#addImageAlbumFile${portfolioId}`)[0].files;
+
+       
+       formData.append("image",files[0]);
+       
+       let authorizationToken = "Bearer "+ window.localStorage.getItem("token");
+        
+       axios({
+              method: 'post',
+              url: `/api/portfolios/${portfolioId}/add-image-to-album`,
+              data: formData,
+              headers:{
+                "Authorization":token,
+                "content-type": "multipart/form-data"}
+              }).then((result)=>{
+                 
+                 showAlert("success",result.data.message);
+                 setTimeout(()=>{
+                   window.location.reload();
+                 },1000)
+
+              }).catch(error=>{
+                showAlert("error",error.response.data.message)
+                 
+              })
+    }
+    
+    function deletePortfolioImage(portfolioId,image){
+      
+
+         axios({
+              method: 'delete',
+              url: `/api/portfolios/${portfolioId}/${image}`,
+              headers:{
+                "Authorization":token,
+                "content-type": "multipart/form-data"}
+              }).then((result)=>{
+                 
+                 showAlert("success",result.data.message);
+                 setTimeout(()=>{
+                   window.location.reload();
+                 },1000)
+
+              }).catch(error=>{
+                showAlert("error",error.response.data.message)
+                 
+              })
+      
+    }
+    function showAlert(icon,text){
+      Swal.fire({
+          icon:icon,
+          text:text});
+    }
+  </script>
+  <!-- endinject -->
+  </body>
+
+  </html>

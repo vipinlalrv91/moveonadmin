@@ -1,0 +1,204 @@
+<%- include("./common/main-nav-cms",{page:"home"}) %>
+
+
+        <div class="main-panel">
+          <div class="content-wrapper">
+            <div class="page-header">
+              <h3 class="page-title">Enquiry Details</h3>
+              
+              <!-- <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="#">Home</a></li>
+                  <li class="breadcrumb-item active" aria-current="page"><a href="#">Frontend</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Home</li>
+                </ol>
+              </nav> -->
+            </div>
+            <div class="row">
+              <div class="col-lg-12 grid-margin">
+                <div style="overflow: auto;" class="card">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                      <p></p>
+                      <a href="/" type="button" class="btn btn-success">Back</a>
+                    </div>
+                    <div style="color:black;">
+
+
+
+                      <table class="table">
+
+  <tbody>
+    <tr>
+      <td><b>Email</b></td>
+      <td><label id="p-email"></label></td>
+    </tr>
+    <tr>
+     <td><b>Phone</b></td>
+      <td><label id="p-phone"></label></td>
+    </tr>
+    <tr>
+      <td><b>Gender</b></td>
+      <td><label id="p-gender"></label></td>
+    </tr>
+    <tr>
+      <td><b>Nationality</b></td>
+      <td><label id="p-nationality"></label></td>
+    </tr>
+    <tr>
+      <td><b>Location</b></td>
+      <td><label id="p-location"></label></td>
+    </tr>
+    <tr>
+      <td><b>Age</b></td>
+      <td><label id="p-age"></label></td>
+    </tr>
+    <tr>
+      <td><b>Under 18</b></td>
+      <td><label id="p-under18"></label></td>
+    </tr>
+    <tr>
+      <td><b>Insta/Fb</b></td>
+      <td><label id="p-social-link"></label></td>
+    </tr>
+    <tr>
+      <td><b>Height</b></td>
+      <td><label id="p-height"></label></td>
+    </tr>
+    <tr>
+      <td><b>Weight</b></td>
+      <td><label id="p-weight"></label></td>
+    </tr>
+    <tr>
+      <td><b>Hair Color</b></td>
+      <td><label id="p-hair-color"></label></td>
+    </tr>
+    <tr>
+      <td><b>Chest/Bust</b></td>
+      <td><label id="p-chest"></label></td>
+    </tr>
+    <tr>
+      <td><b>Waist</b></td>
+      <td><label id="p-waist"></label></td>
+    </tr>
+    <tr>
+      <td><b>Hip</b></td>
+      <td><label id="p-hip"></label></td>
+    </tr>
+    <tr>
+      <td><b>Theme</b></td>
+      <td><label style="white-space: break-spaces;" id="p-theme"></label></td>
+    </tr>
+    <tr>
+      <td><b>Theme Link</b></td>
+      <td><label id="p-theme-link"></label></td>
+    </tr>
+     <tr>
+      <td><b>Images</b></td>
+      <td><div class="container-fluid">
+                        <div id="images" class="row">
+                          
+                        </div>
+                       </div></td>
+    </tr>
+    <tr>
+      <td><b>Concept Images</b></td>
+      <td> <div class="container-fluid">
+                        <div id="concept-images" class="row">
+                          
+                        </div>
+                       </div></td>
+    </tr>
+  </tbody>
+</table>
+                       
+
+
+                       
+                      
+                      
+                       
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+ 
+          <!-- content-wrapper ends -->
+          <!-- partial:../../partials/_footer.html -->
+          <footer class="footer">
+            <div class="footer-inner-wraper">
+              <div class="d-sm-flex justify-content-center justify-content-sm-between py-2">
+              </div>
+            </div>
+          </footer>
+          <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+    <!-- plugins:js -->
+
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="/assets/vendors/js/jquery.js"></script>
+
+
+    <script>
+      $(document).ready(function () {
+       // var base_url = "https://movonnewbucket.s3.amazonaws.com/images/";
+       var base_url = "/uploads/";
+        let authorizationToken = "Bearer "+ window.localStorage.getItem("token");
+         let enquiryId = <%= enquiryId %>;
+         
+         $.ajax({
+          type: "GET",
+          url: "/api/enquiry/"+enquiryId,
+          beforeSend: function(request) {
+            request.setRequestHeader("Authorization", authorizationToken);
+          },
+          success: function (response) {
+            let enquiry = response.data.enquiry;
+            let imageHtml ="";
+            console.log(enquiry.enquiryImages);
+            (enquiry.enquiryImages).forEach(image => {
+               imageHtml+= `<div class="col-4 mb-2"><a href="${base_url}${image.image}" target="_blank"><img class="img-fluid" src="${base_url}${image.image}" alt="imag"></a></div>`
+            });
+            $("#images").append(imageHtml);
+            
+            imageHtml ="";
+            (enquiry.themeImages).forEach(image => {
+               imageHtml+= `<div class="col-4 mb-2"><a href="${base_url}${image.image}" target="_blank"><img class="img-fluid" src="${base_url}${image.image}" alt="imag"></a></div>`
+            });
+            $("#concept-images").append(imageHtml);
+
+            $("#p-email").append(enquiry.details.email);
+            $("#p-phone").append(enquiry.details.phone);
+            $("#p-gender").append(enquiry.details.gender);
+            $("#p-nationality").append(enquiry.details.nationality);
+            $("#p-location").append(enquiry.details.address);
+            $("#p-age").append(enquiry.details.age);
+            $("#p-under18").append(enquiry.details.under_18_with_parents);
+            $("#p-social-link").append(enquiry.details.socailmedia);
+            $("#p-height").append(enquiry.details.height);
+            $("#p-weight").append(enquiry.details.weight);
+            $("#p-hair-color").append(enquiry.details.hair_color);
+            $("#p-chest").append(enquiry.details.chest_or_bust);
+            $("#p-waist").append(enquiry.details.waist);
+            $("#p-hip").append(enquiry.details.hip);
+            $("#p-theme").append(enquiry.details.theme);
+            $("#p-theme-link").append(enquiry.details.theme_link);
+           
+          }
+         });
+         
+      });
+    </script>
+    <!-- endinject -->
+  </body>
+</html>

@@ -1,0 +1,140 @@
+<%- include("common/main-nav",{page:"contacts"}) %>
+        <!-- partial -->
+        <div class="main-panel">
+          <div class="content-wrapper">
+            <div class="page-header">
+              <h3 class="page-title">Contacts</h3>
+              <!-- <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="#">Home</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">contacts</li>
+                </ol>
+              </nav> -->
+            </div>
+            <div class="row">
+              <div class="col-lg-12 grid-margin">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-bordered" id="myTable" style="width:100%">
+                        <thead>
+                          <tr>
+                            <th> # </th>
+                            <th> Name</th>
+                            <th> Email </th>
+                            <th> Phone </th>
+                            <th> Message</th>
+                            <th>Delete</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- content-wrapper ends -->
+          <!-- partial:./partials/_footer.html -->
+          <footer class="footer">
+            <div class="footer-inner-wraper">
+              <div class="d-sm-flex justify-content-center justify-content-sm-between py-2">
+              </div>
+            </div>
+          </footer>
+          <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+    <!-- plugins:js -->
+    <script src="./assets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="./assets/js/off-canvas.js"></script>
+    <script src="./assets/js/hoverable-collapse.js"></script>
+    <script src="./assets/js/data-table.js"></script>
+    <script>
+
+    </script>
+      <script>
+      $(document).ready(function () {
+    
+             let authorizationToken = "Bearer "+ window.localStorage.getItem("token");
+             $.ajax({
+                 method:"get",
+                 beforeSend: function(request) {
+                request.setRequestHeader("Authorization", authorizationToken);
+                },
+                 url: "/api/contacts", 
+                 success: function(data, textStatus, jqXHR)
+                 {
+                  var contacts = data.data.contacts;
+                  var newContacts = [];
+                  var i = 1;
+                  $.each( contacts, function( key, value ) {
+                        value.no = i;
+                        newContacts.push(value);
+                        i++;               
+                  });
+                   $('#myTable').DataTable( {
+                        data: newContacts,
+                        columns: [
+                            { data: 'no' },
+                            { data: 'name' },
+                            { data: 'email' },
+                            { data: 'phone' },
+                            { data: 'message' },
+                            { data: 'contact_id',render: function (data, type, row, meta) {
+                                return '<button value="'+data+'" class="del">Delete</button>';
+                              }
+                            }
+                        ]
+                    } );
+                    //$('#myTable').DataTable();
+                 },
+                 error: function(error)
+                 {
+                    errorToast(error.responseJSON.message);
+                 }
+               });
+
+          //  });
+      });
+      $("body").on("click", ".del", function(e){
+      var row = $(this);
+      var table = $('#myTable').DataTable();
+      var tablename = row.closest('table').DataTable();           
+      let authorizationToken = "Bearer "+ window.localStorage.getItem("token");
+      var contacts_id = jQuery(this).val();
+         $.ajax({
+                 method:"delete",
+                 beforeSend: function(request) {
+                request.setRequestHeader("Authorization", authorizationToken);
+                },
+                 url: "/api/contacts/"+contacts_id, 
+                 success: function(data, textStatus, jqXHR)
+                 {
+                    tablename.row( row.parents('tr') ).remove().draw();
+                   successToast(data.message);
+                 },
+                 error: function(error)
+                 {
+                     errorToast(error.responseJSON.message);
+                 }
+               });
+      });
+ </script>
+    <!-- endinject -->
+    <!-- Custom js for this page -->
+    <!-- End custom js for this page -->
+  
+  </body>
+</html>

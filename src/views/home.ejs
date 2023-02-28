@@ -1,0 +1,284 @@
+<%- include("common/main-nav",{page:"home"}) %>
+<style>
+.table th img, .table td img {
+  width: 200px;
+  height: 150px;
+  border-radius: 0;
+  object-fit: cover;
+  padding: 5px;
+}
+</style>
+
+
+        <!-- partial -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+        <div class="main-panel">
+          <div class="content-wrapper">
+            <div class="page-header">
+              <h3 class="page-title">New Enquiries</h3>
+              <!-- <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="#">Home</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">enquires</li>
+                </ol>
+              </nav> -->
+            </div>
+            <div class="row">
+              <div class="col-lg-12 grid-margin">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-bordered" id="myTable" style="width:100%">
+                        <thead>
+                          <tr>
+                            <th> # </th>
+                            <th> Name</th>
+                            <th>Phone</th>
+                            <th> Insta/Fb </th>
+                           
+                            <!-- <th> Photos </th> -->
+                            <!-- <th> Theme images </th> -->
+                             <th> Date </th>
+                            <th>Action</th>
+                            
+                            <!-- <th>Delete</th> -->
+                          </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- content-wrapper ends -->
+          <!-- partial:./partials/_footer.html -->
+          <footer class="footer" id="footer">
+            <div class="footer-inner-wraper">
+            
+              <div class="d-sm-flex justify-content-center justify-content-sm-between py-2">
+              </div>
+            </div>
+          </footer>
+          <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+    <!-- plugins:js -->
+    <script src="./assets/vendors/js/vendor.bundle.base.js" ></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="./assets/js/off-canvas.js"></script>
+    <script src="./assets/js/hoverable-collapse.js"></script>
+    <script src="./assets/js/data-table.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/assets/js/toaster.js"></script>
+    <script>
+       $(document).ready(function () {
+    
+             var base_url = window.location.origin+'/resources/images/portfolio/thumb/';    
+             let authorizationToken = "Bearer "+ window.localStorage.getItem("token");
+             $.ajax({
+                 method:"get",
+                 beforeSend: function(request) {
+                   request.setRequestHeader("Authorization", authorizationToken);
+                },
+                 url: "/api/enquiry", 
+                 success: function(data, textStatus, jqXHR)
+                 {
+                  var enquires = data.data.enquires;
+                  var newEnquires = [];
+                  var i = 1;
+                  $.each( enquires, function( key, value ) {
+                        value.no = i;
+                        newEnquires.push(value);
+                        i++;               
+                  });
+                  // console.log(newEnquires);
+                    datatable = $('#myTable').DataTable( {
+                        data: newEnquires,
+                        columns: [
+                            { data: 'no' },
+                            { data: 'name' },
+                            { data: 'phone' },
+                            { data: 'socailmedia' },
+                            // { data: 'enquiry_id',render: function (data, type, row, meta) {
+                                
+                            //     return `<button class="btn btn-success" onclick="viewProfileImages(${data})">view</button>
+
+                            //           <div class="modal fade" id="enquiryImageModal${data}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                            //             <div class="modal-dialog" role="document">
+                            //               <div class="modal-content">
+                            //                 <div class="modal-header">
+                            //                   <h5 class="modal-title" id="exampleModalLongTitle">Enquiry Images</h5>
+                            //                   <button type="button" 
+                                                     
+                            //                           data-dismiss="modal" 
+                            //                           onclick="$('#enquiryImageModal${data}').modal('hide')">
+                            //                     <span aria-hidden="true" >&times;</span>
+                            //                   </button>
+                            //                 </div>
+                            //                 <div class="modal-body">
+                            //                    hi there
+                            //                 </div>
+                            //               </div>
+                            //             </div>
+                            //           </div>`;
+                            //   }
+                            // },
+                            // { data: 'enquiry_id',render: function (data, type, row, meta) {
+                            //      return `<button class="btn btn-success" onclick="viewThemeImages(${data})">view</button>
+                            //               <div class="modal fade" id="themeImageModal${data}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                            //                       <div class="modal-dialog" role="document">
+                            //                         <div class="modal-content">
+                            //                           <div class="modal-header">
+                            //                             <h5 class="modal-title" id="exampleModalLongTitle">Enquiry Images</h5>
+                            //                             <button type="button" 
+                            //                                     data-dismiss="modal" 
+                            //                                     onclick="$('#themeImageModal${data}').modal('hide')">
+                            //                               <span aria-hidden="true" >&times;</span>
+                            //                             </button>
+                            //                           </div>
+                            //                           <div style="display:contents;" class="modal-body" >
+
+                            //                             <div class="container">
+                            //                           <div class="row">
+                            //                             <div style="display: contents;" id="themeImageModalBody${data}">
+                            //                               One of three columns
+                            //                             </div>
+                            //                           </div>
+                            //                         </div>
+                                                                                                              
+                            //                           </div>
+                            //                         </div>
+                            //                       </div>
+                            //                 </div>`;
+                            //   }
+                            // },
+                            
+                            { data: 'createdAt' ,render: function (data, type, row, meta) {
+                                return data.slice(0,10);
+                              }
+                            },
+                            { data: 'enquiry_id',render: function (data, type,row, meta) {
+                                 return `<a class="btn btn-success" href="/enquires/${data}"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                                 &nbsp&nbsp
+                                 <button id="delete-button" class="btn btn-danger" value="${data}"><i style="cursor:pointer;" class="fa fa-trash" aria-hidden="true"></i></button>`;
+                              }
+                            },
+                            // { data: 'enquiry_id',render: function (data, type, row, meta) {
+                            //     return `<i style="cursor:pointer;color:red" id="delete-button" data-val="${data}" class="fa fa-trash" aria-hidden="true"></i>`;
+                            //   }
+                            // }
+                        ],
+                    } );
+                    //$('#myTable').DataTable();
+                    // <button id="delete-button" class="btn btn-danger" value="${data}">Delete</button>
+                 },
+                 error: function(error)
+                 {
+                    errorToast(error.responseJSON.message);
+                 }
+               });
+
+     
+      });
+     //delete enquiry
+     $("body").on("click", "#delete-button", function(e){
+      // console.log("delete button clicked")
+      var row = $(this);
+      var table = $('#myTable').DataTable();
+      var tablename = row.closest('table').DataTable();           
+      let authorizationToken = "Bearer "+ window.localStorage.getItem("token");
+      var enquiry_id = jQuery(this).val();
+      //var enquiry_id = jQuery(this).attr("data-val");
+     
+         new  swal({
+                  title: "Are you sure?",
+                  text: "You will not be able to recover this enquiry!",
+                  type: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: '#DD6B55',
+                  confirmButtonText: 'Delete',
+                  cancelButtonText: "Cancel",
+                  closeOnConfirm: false,
+                  closeOnCancel: false
+              }).then(data=>{
+                if(data.isConfirmed){
+                       $.ajax({
+                        method:"delete",
+                        beforeSend: function(request) {
+                        request.setRequestHeader("Authorization", authorizationToken);
+                        },
+                        url: "/api/enquiry/"+enquiry_id, 
+                        success: function(data, textStatus, jqXHR)
+                        {
+                          tablename.row( row.parents('tr') ).remove().draw();
+                          Swal.fire('',data.message,'success');
+                          setTimeout(()=>{
+                            window.location.reload();
+                          },2000)
+                          
+                        },
+                        error: function(error)
+                        {
+                          errorToast(error.responseJSON.message);
+                        }
+                      });
+                }
+
+                return;
+                
+              })
+      });
+
+
+      var base_url = window.location.origin+'/resources/images/';
+      function viewProfileImages(id){
+        $(`#enquiryImageModal${id}`).modal('show');
+       
+      }
+
+      function viewThemeImages(id){
+        
+       
+        $.ajax({
+                 method:"get",
+                 beforeSend: function(request) {
+                request.setRequestHeader("Authorization", authorizationToken);
+                },
+                 url:`api/enquiry/${id}/theme-images`, 
+                 success: function(data, textStatus, jqXHR)
+                 {
+                    console.log(data);
+                    $(`#themeImageModalBody${id}`).empty();
+                    (data.data.themeImages).forEach(imageObj => {
+                      
+                      $(`#themeImageModalBody${id}`).append(`<div class="col-4"><a href="${base_url}enquiry/theme/${imageObj.image}" target="_blank"><img class="img-fluid" src="${base_url}enquiry/theme/${imageObj.image}" alt="imag"></a></div>`);
+                    });
+                    $(`#themeImageModal${id}`).modal('show');
+                 },
+                 error: function(error)
+                 {
+                    
+                    errorToast(error.responseJSON.message);
+                 }
+               });
+      }
+
+      function ViewMoreDetails(id){
+        
+        $(`#detailsModal${id}`).modal('show');
+      }
+
+    </script>
+  </body>
+</html>
